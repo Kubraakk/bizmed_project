@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="{% static 'web/style.css' %}">
+  <title>Yeni Hasta Kaydı</title>
+</head>
+<body class="page">
+
+  <!-- İKİYE BÖLÜNMÜŞ YAPI -->
+  <div class="split">
+    <!-- SOL: LOGO BLOĞU -->
+    <div class="split-left">
+      <div class="side">
+        <img src="{% static 'web/bizmed-logo.png' %}" alt="Bizmed" class="side-logo xl">
+      </div>
+    </div>
+
+    <!-- SAĞ: FORM KARTI -->
+    <div class="split-right">
+      <div class="card shift-right">
+        <div class="card-top">
+          <a href="{% url 'home' %}" class="btn-ghost top-left small">🏠 Ana Sayfa</a>
+          <h1 class="brand-title">Yeni Hasta Kaydı</h1>
+        </div>
+
+        <!-- ALT ALTA FORM -->
+        <form method="post" class="form stack">
+          {% csrf_token %}
+          <div class="grid">
+            <div class="field"><label>T.C. Kimlik No</label>{{ form.national_id }}</div>
+            <div class="field"><label>Ad</label>{{ form.first_name }}</div>
+            <div class="field"><label>Soyad</label>{{ form.last_name }}</div>
+            <div class="field"><label>Telefon</label>{{ form.phone }}</div>
+            <div class="field"><label>Adres</label>{{ form.address }}</div>
+          </div>
+
+          <div class="buttons-row center">
+            <button type="submit" class="btn btn-wide">Kaydet ve Kayıt Aç</button>
+          </div>
+        </form>
+
+        <div class="card-footer">
+          <a href="{% url 'tckn-search' %}" class="btn-ghost">🔍 T.C. ile Hasta Sorgula</a>
+          <a href="{% url 'registration-create' %}" class="btn-ghost">📋 Doğrudan Kayıt Oluştur</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

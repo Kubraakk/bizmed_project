@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>T.C. ile Hasta Sorgula | Bizmed</title>
+  <link rel="stylesheet" href="{% static 'web/style.css' %}">
+</head>
+<body class="page">
+  <main class="home-screen">
+    <section class="card">
+      <div class="brand">
+        <img class="logo-sm" src="{% static 'web/bizmed-logo.png' %}" alt="Bizmed Logo">
+        <h1 class="brand-title">T.C. ile Hasta Sorgula</h1>
+      </div>
+
+      <form method="POST" class="form stack">
+        {% csrf_token %}
+        <div class="field">
+          <label for="id_tckn">T.C. Kimlik No</label>
+          <input type="text" id="id_tckn" name="tckn" placeholder="11 haneli T.C. Kimlik No giriniz" required>
+        </div>
+
+        <button type="submit" class="btn btn-wide">🔍 Sorgula</button>
+      </form>
+
+      <div class="buttons-row center" style="margin-top:24px;">
+        <a href="{% url 'patient-create' %}" class="btn-ghost small">🧑‍⚕️ Yeni Hasta Kaydı</a>
+        <a href="{% url 'registration-create' %}" class="btn-ghost small">📋 Yeni Kayıt</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

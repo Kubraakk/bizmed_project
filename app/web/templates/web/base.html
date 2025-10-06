@@ -1,0 +1,14 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Bizmed | Hasta Kayıt Sistemi{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'web/style.css' %}?v=4">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="page">
+  {% block content %}{% endblock %}
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

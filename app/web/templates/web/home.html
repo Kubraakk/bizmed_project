@@ -1,0 +1,24 @@
+{% extends "web/base.html" %}
+{% load static %}   {# ← BUNU EKLE #}
+
+{% block title %}Bizmed | Ana Sayfa{% endblock %}
+
+{% block content %}
+<main class="home-screen">
+  <section class="home-card card">
+    <div class="brand">
+      <img class="logo-sm" src="{% static 'web/bizmed-logo.png' %}" alt="Bizmed">
+      <h1 class="brand-title">Bizmed Hasta Kayıt Sistemi</h1>
+    </div>
+
+    <p class="subtitle">Hızlı, kolay ve güvenli hasta kabul yönetimi</p>
+
+    <div class="buttons column">
+      <a href="{% url 'patient-create' %}" class="btn">🧑‍⚕️ Yeni Hasta Kaydı</a>
+      <a href="{% url 'tckn-search' %}" class="btn">🔎 T.C. ile Hasta Sorgula</a>
+      <a href="{% url 'registration-create' %}" class="btn">🗂️ Yeni Kayıt Oluştur</a>
+      <a href="{% url 'admin:index' %}" class="btn secondary">⚙️ Admin Paneli</a>
+    </div>
+  </section>
+</main>
+{% endblock %}

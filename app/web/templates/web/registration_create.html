@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="{% static 'web/style.css' %}">
+  <title>Yeni Kayıt Oluştur</title>
+</head>
+<body class="page">
+
+  <div class="split">
+    <div class="split-left">
+      <div class="side">
+        <img src="{% static 'web/bizmed-logo.png' %}" alt="Bizmed" class="side-logo xl">
+        <p class="slogan">“Sağlıklı Bilgi”</p>
+      </div>
+    </div>
+
+    <div class="split-right">
+      <div class="card shift-right">
+        <div class="card-top">
+          <a href="{% url 'home' %}" class="btn-ghost top-left small">🏠 Ana Sayfa</a>
+          <h1 class="brand-title">Yeni Kayıt Oluştur</h1>
+        </div>
+
+        {% if patient %}
+          <div class="banner">
+            <strong>Hasta:</strong> {{ patient.first_name }} {{ patient.last_name }}
+            — <span class="muted">T.C: {{ patient.national_id }}</span>
+          </div>
+        {% endif %}
+
+        <form method="post" id="regForm" class="form stack">
+          {% csrf_token %}
+
+          <div class="grid">
+            <!-- Bölüm -->
+            <div class="field">
+              <label for="id_department">Bölüm</label>
+              {{ form.department }}
+            </div>
+
+            <!-- Doktor (gizli gerçek alan) -->
+            {{ form.doctor.as_hidden }}
+
+            <div class="field">
+            <label>Doktor</label>
+
+            {% if doctors %}
+            <!-- sabit yükseklik + scroll için sarmalayıcı -->
+            <div class="doc-scroll">
+                <ul class="doc-grid" id="doctorGrid">
+                {% for d in doctors %}
+                <li>
+                    <button
+                    type="button"
+                    class="doc-card{% if selected_doctor_id and selected_doctor_id|stringformat:'s' == d.id|stringformat:'s' %} selected{% endif %}"
+                    data-id="{{ d.id }}"
+                    aria-pressed="{% if selected_doctor_id and selected_doctor_id|stringformat:'s' == d.id|stringformat:'s' %}true{% else %}false{% endif %}">
+                    <span class="avatar">{{ d.first_name|first }}{{ d.last_name|first }}</span>
+                    <span class="info">
+                        <span class="name">{{ d.first_name }} {{ d.last_name }}</span>
+                        <span class="meta">{{ d.department.name }}</span>
+                    </span>
+                    <span class="tick" aria-hidden="true">✔</span>
+                    </button>
+                </li>
+                {% endfor %}
+                </ul>
+            </div>
+            {% else %}
+                <p class="muted">Bu bölüm için doktor bulunamadı.</p>
+            {% endif %}
+            </div>
+
+            <!-- Not -->
+            <div class="field">
+              <label for="id_notes">Not</label>
+              {{ form.notes }}
+            </div>
+          </div>
+
+          <div class="buttons-row center">
+            <button type="submit" class="btn btn-wide">Kaydı Oluştur</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // Bölüm değişince sayfayı ilgili parametreyle yenile
+  document.addEventListener("DOMContentLoaded", () => {
+    const dep = document.getElementById("id_department");
+    const hiddenDoctor = document.getElementById("id_doctor");
+    const grid = document.getElementById("doctorGrid");
+
+    // Bölüm değiştiğinde, seçili doktoru sıfırla ve sayfayı yeniden yükle
+    dep?.addEventListener("change", () => {
+      const url = new URL(window.location.href);
+      url.searchParams.set("department", dep.value || "");
+      window.location.href = url.toString();
+    });
+
+    // Kart seçimi
+    if (grid && hiddenDoctor) {
+      grid.addEventListener("click", (e) => {
+        const btn = e.target.closest(".doc-card");
+        if (!btn) return;
+
+        // mevcut seçimi kaldır
+        grid.querySelectorAll(".doc-card.selected").forEach(el=>{
+          el.classList.remove("selected");
+          el.setAttribute("aria-pressed","false");
+        });
+
+        // yeni seçimi uygula
+        btn.classList.add("selected");
+        btn.setAttribute("aria-pressed","true");
+        hiddenDoctor.value = btn.dataset.id;
+      });
+    }
+  });
+  </script>
+
+</body>
+</html>
