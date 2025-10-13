@@ -2,14 +2,8 @@ import uuid
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from .validators import validate_tckn, validate_phone
 
-# --- TCKN doğrulama ---
-
-def validate_tckn(value: str):
-    if not value.isdigit() or len(value) != 11:
-        raise ValidationError("T.C. Kimlik No 11 haneli ve sadece rakam olmalıdır.")
-    if value[0] == '0':
-        raise ValidationError("T.C. Kimlik No 0 ile başlayamaz.")
 
 class TimeStampedModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -33,7 +27,7 @@ class Doctor(TimeStampedModel):
     first_name = models.CharField(max_length=80)
     last_name = models.CharField(max_length=80)
     department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name="doctors")
-    phone = models.CharField(max_length=20, blank=True)
+    phone = models.CharField(max_length=20, blank=True, validators=[validate_phone])
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -78,3 +72,8 @@ class Registration(TimeStampedModel):
 
     def __str__(self):
         return f"{self.patient} → {self.doctor} @ {self.registered_at:%Y-%m-%d %H:%M} ({self.status})"
+    """
+    def save(self, *args, **kwargs):
+        validate_unique_daily_registration(self.patient, self.doctor)
+        super().save(*args, **kwargs)
+    """

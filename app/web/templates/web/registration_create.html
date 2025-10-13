@@ -34,20 +34,16 @@
           {% csrf_token %}
 
           <div class="grid">
-            <!-- Bölüm -->
             <div class="field">
               <label for="id_department">Bölüm</label>
               {{ form.department }}
             </div>
-
-            <!-- Doktor (gizli gerçek alan) -->
             {{ form.doctor.as_hidden }}
 
             <div class="field">
             <label>Doktor</label>
 
             {% if doctors %}
-            <!-- sabit yükseklik + scroll için sarmalayıcı -->
             <div class="doc-scroll">
                 <ul class="doc-grid" id="doctorGrid">
                 {% for d in doctors %}
@@ -72,8 +68,6 @@
                 <p class="muted">Bu bölüm için doktor bulunamadı.</p>
             {% endif %}
             </div>
-
-            <!-- Not -->
             <div class="field">
               <label for="id_notes">Not</label>
               {{ form.notes }}
@@ -89,32 +83,24 @@
   </div>
 
   <script>
-  // Bölüm değişince sayfayı ilgili parametreyle yenile
   document.addEventListener("DOMContentLoaded", () => {
     const dep = document.getElementById("id_department");
     const hiddenDoctor = document.getElementById("id_doctor");
     const grid = document.getElementById("doctorGrid");
-
-    // Bölüm değiştiğinde, seçili doktoru sıfırla ve sayfayı yeniden yükle
     dep?.addEventListener("change", () => {
       const url = new URL(window.location.href);
       url.searchParams.set("department", dep.value || "");
       window.location.href = url.toString();
     });
 
-    // Kart seçimi
     if (grid && hiddenDoctor) {
       grid.addEventListener("click", (e) => {
         const btn = e.target.closest(".doc-card");
         if (!btn) return;
-
-        // mevcut seçimi kaldır
         grid.querySelectorAll(".doc-card.selected").forEach(el=>{
           el.classList.remove("selected");
           el.setAttribute("aria-pressed","false");
         });
-
-        // yeni seçimi uygula
         btn.classList.add("selected");
         btn.setAttribute("aria-pressed","true");
         hiddenDoctor.value = btn.dataset.id;

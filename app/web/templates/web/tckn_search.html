@@ -1,34 +1,99 @@
+{% extends "web/base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>T.C. ile Hasta Sorgula | Bizmed</title>
-  <link rel="stylesheet" href="{% static 'web/style.css' %}">
-</head>
-<body class="page">
-  <main class="home-screen">
-    <section class="card">
-      <div class="brand">
-        <img class="logo-sm" src="{% static 'web/bizmed-logo.png' %}" alt="Bizmed Logo">
-        <h1 class="brand-title">T.C. ile Hasta Sorgula</h1>
-      </div>
 
-      <form method="POST" class="form stack">
-        {% csrf_token %}
+{% block title %}T.C. ile Hasta Sorgula{% endblock %}
+
+{% block content %}
+<div class="split">
+  <div class="split-left">
+    <div class="side">
+      <img src="{% static 'web/bizmed-logo.png' %}" class="side-logo xl" alt="Bizmed">
+    </div>
+  </div>
+  <div class="split-right">
+    <div class="card">
+      <div class="card-top">
+        <a href="{% url 'home' %}" class="btn-ghost small top-left">🏠 Ana Sayfa</a>
+        <h2 class="brand-title">T.C. ile Hasta Sorgula</h2>
+      </div>
+      <form method="GET" id="tcknForm" class="form stack">
         <div class="field">
           <label for="id_tckn">T.C. Kimlik No</label>
           <input type="text" id="id_tckn" name="tckn" placeholder="11 haneli T.C. Kimlik No giriniz" required>
         </div>
-
-        <button type="submit" class="btn btn-wide">🔍 Sorgula</button>
+        <div class="buttons-row center">
+          <button type="submit" class="btn btn-wide">🔍 Sorgula</button>
+        </div>
       </form>
-
-      <div class="buttons-row center" style="margin-top:24px;">
-        <a href="{% url 'patient-create' %}" class="btn-ghost small">🧑‍⚕️ Yeni Hasta Kaydı</a>
-        <a href="{% url 'registration-create' %}" class="btn-ghost small">📋 Yeni Kayıt</a>
+      <div id="result" class="result-panel" style="display:none;"></div>
+      <div class="card-footer">
+        <a href="{% url 'patient-create' %}" class="btn-ghost">🧑‍⚕️ Yeni Hasta Kaydı</a>
       </div>
-    </section>
-  </main>
-</body>
-</html>
+
+    </div>
+  </div>
+
+</div>
+<script>
+  (function(){
+    const form   = document.getElementById('tcknForm');
+    const input  = document.getElementById('id_tckn');
+    const panel  = document.getElementById('result');
+
+    function show(msgHtml){
+      panel.style.display = 'block';
+      panel.innerHTML = msgHtml;
+    }
+    function clearPanel(){
+      panel.style.display = 'none';
+      panel.innerHTML = '';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearPanel();
+
+      const nid = (input.value || '').trim();
+      if (!/^\d{11}$/.test(nid)) {
+        show('<div class="banner warn">⚠️ Lütfen 11 haneli bir T.C. Kimlik No giriniz.</div>');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/patients/search/?national_id=${encodeURIComponent(nid)}`);
+        if (res.status === 404) {
+          show('<div class="banner warn">❌ Hasta bulunamadı.</div>');
+          return;
+        }
+
+        const patient = await res.json();
+        const regRes = await fetch(`/api/registrations/?national_id=${encodeURIComponent(nid)}`);
+        const regs = regRes.ok ? await regRes.json() : [];
+
+        const rows = Array.isArray(regs) && regs.length
+          ? regs.map(r => `
+              <li>
+                <div>
+                  <strong>${r.doctor_name}</strong>
+                  <div class="meta">${r.status}</div>
+                </div>
+                <span class="tag">${(r.created_at || '').slice(0,10)}</span>
+              </li>
+            `).join('')
+          : '<li>Kayıt bulunamadı.</li>';
+
+        show(`
+          <div class="banner">
+            <strong>Hasta:</strong> ${patient.first_name} ${patient.last_name}
+            &nbsp;—&nbsp;<span class="muted">T.C.: ${patient.national_id}</span>
+          </div>
+          <ul class="list">${rows}</ul>
+        `);
+      } catch (err) {
+        show('<div class="banner warn">🚨 Beklenmeyen bir hata oluştu.</div>');
+        console.error(err);
+      }
+    });
+  })();
+</script>
+{% endblock %}

@@ -8,24 +8,28 @@
 </head>
 <body class="page">
 
-  <!-- İKİYE BÖLÜNMÜŞ YAPI -->
   <div class="split">
-    <!-- SOL: LOGO BLOĞU -->
     <div class="split-left">
       <div class="side">
         <img src="{% static 'web/bizmed-logo.png' %}" alt="Bizmed" class="side-logo xl">
       </div>
     </div>
-
-    <!-- SAĞ: FORM KARTI -->
     <div class="split-right">
       <div class="card shift-right">
         <div class="card-top">
           <a href="{% url 'home' %}" class="btn-ghost top-left small">🏠 Ana Sayfa</a>
           <h1 class="brand-title">Yeni Hasta Kaydı</h1>
         </div>
-
-        <!-- ALT ALTA FORM -->
+        {% if messages %}
+          <div class="messages">
+            {% for message in messages %}
+              <div class="banner {{ message.tags }}">
+                {% if "success" in message.tags %}{% elif "error" in message.tags %}{% elif "warning" in message.tags %}⚠️{% else %}ℹ️{% endif %}
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
         <form method="post" class="form stack">
           {% csrf_token %}
           <div class="grid">
@@ -40,10 +44,8 @@
             <button type="submit" class="btn btn-wide">Kaydet ve Kayıt Aç</button>
           </div>
         </form>
-
         <div class="card-footer">
           <a href="{% url 'tckn-search' %}" class="btn-ghost">🔍 T.C. ile Hasta Sorgula</a>
-          <a href="{% url 'registration-create' %}" class="btn-ghost">📋 Doğrudan Kayıt Oluştur</a>
         </div>
       </div>
     </div>

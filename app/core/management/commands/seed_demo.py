@@ -22,7 +22,6 @@ class Command(BaseCommand):
         min_d = max(1, opts['min_doctors'])
         max_d = max(min_d, opts['max_doctors'])
 
-        # Departmanlar
         if opts['departments'] > 0:
             names = [fake.job() for _ in range(opts['departments'])]
         else:
@@ -34,7 +33,6 @@ class Command(BaseCommand):
             deps.append(dep)
         self.stdout.write(self.style.SUCCESS(f'Department: {len(deps)} hazır.'))
 
-        # Doktorlar
         total_docs = 0
         for dep in deps:
             for _ in range(random.randint(min_d, max_d)):
