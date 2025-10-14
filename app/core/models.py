@@ -27,7 +27,6 @@ class Doctor(TimeStampedModel):
     first_name = models.CharField(max_length=80)
     last_name = models.CharField(max_length=80)
     department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name="doctors")
-    phone = models.CharField(max_length=20, blank=True, validators=[validate_phone])
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -40,10 +39,14 @@ class Doctor(TimeStampedModel):
         return f"Dr. {self.first_name} {self.last_name} ({self.department.name})"
 
 class Patient(TimeStampedModel):
-    national_id = models.CharField(max_length=11, unique=True, validators=[validate_tckn], db_index=True)
+    national_id = models.CharField(
+        max_length=11,
+        validators=[validate_tckn],
+        db_index=True,
+    )
     first_name = models.CharField(max_length=80)
     last_name = models.CharField(max_length=80)
-    phone = models.CharField(max_length=20, blank=True)
+    phone = models.CharField(max_length=20, blank=True, validators=[validate_phone])
     address = models.TextField(blank=True)
 
     class Meta:

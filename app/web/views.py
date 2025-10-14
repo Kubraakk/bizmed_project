@@ -26,30 +26,27 @@ class PatientCreateView(CreateView):
 
     def form_valid(self, form):
         national_id = form.cleaned_data.get("national_id")
+        new_first = form.cleaned_data.get("first_name").strip().lower()
+        new_last = form.cleaned_data.get("last_name").strip().lower()
+
         existing = Patient.objects.filter(national_id=national_id).first()
 
         if existing:
             if (
-                existing.first_name != form.cleaned_data["first_name"]
-                or existing.last_name != form.cleaned_data["last_name"]
+                existing.first_name.strip().lower() == new_first and
+                existing.last_name.strip().lower() == new_last
             ):
-                messages.error(self.request, "❌ Bu T.C. zaten başka bir isimle kayıtlı!")
-                return self.render_to_response(self.get_context_data(form=form))
+                messages.info(self.request, "ℹ️ Bu hasta zaten sistemde kayıtlı, kayıt açma ekranına yönlendiriliyorsunuz.")
+                self.request.session["selected_patient_id"] = str(existing.id)
+                return redirect(reverse("registration-create"))
 
-            messages.info(self.request, "ℹ️ Bu hasta zaten sistemde kayıtlı, kayıt sayfasına yönlendiriliyorsunuz...")
-            self.request.session["selected_patient_id"] = str(existing.id)
-            context = self.get_context_data(form=form)
-            context["redirect_url"] = reverse("registration-create")
-            return self.render_to_response(context)
+            form.add_error("national_id", "⚠️ Bu T.C. başka bir kişiye kayıtlı! Lütfen bilgileri kontrol edin.")
+            return self.form_invalid(form)
 
         patient = form.save()
         self.request.session["selected_patient_id"] = str(patient.id)
-        messages.success(self.request, "✅ Yeni hasta kaydı oluşturuldu, yönlendiriliyorsunuz...")
-        context = self.get_context_data(form=form)
-        context["redirect_url"] = reverse("registration-create")
-
-        return self.render_to_response(context)
-
+        messages.success(self.request, "✅ Yeni hasta kaydı oluşturuldu, şimdi kayıt açabilirsiniz.")
+        return redirect(reverse("registration-create"))
 
 
 class RegistrationCreateView(CreateView):
@@ -99,14 +96,19 @@ class RegistrationCreateView(CreateView):
             ctx["doctors"] = form.fields["doctor"].queryset
             ctx["selected_doctor_id"] = (form["doctor"].value() or None)
         return ctx
-
     def form_valid(self, form):
         patient_id = self.request.session.get("selected_patient_id")
-        if patient_id:
-            form.instance.patient_id = patient_id
+        if not patient_id:
+            messages.error(self.request, "Hasta seçimi yapılmadı!")
+            return redirect("patient-create")
+
+        form.instance.patient_id = patient_id
+        registration = form.save()
         self.request.session.pop("selected_patient_id", None)
-        messages.success(self.request, "Kayıt başarıyla oluşturuldu.")
+
+        messages.success(self.request, "✅ Hasta kaydı başarıyla oluşturuldu.")
         return redirect(reverse("home"))
+
 
 class TCKNSearchView(View):
     def get(self, request):
