@@ -1,97 +1,104 @@
 {% extends "web/base.html" %}
 {% load static %}
+
 {% block title %}T.C. ile Hasta Sorgula{% endblock %}
+
 {% block content %}
-<div class="split">
-  <div class="split-left">
-    <div class="side">
-      <img src="{% static 'web/bizmed-logo.png' %}" class="side-logo xl" alt="Bizmed">
-    </div>
-  </div>
-  <div class="split-right">
-    <div class="card">
-      <div class="card-top">
-        <a href="{% url 'home' %}" class="btn-ghost small top-left">🏠 Ana Sayfa</a>
-        <h2 class="brand-title">T.C. ile Hasta Sorgula</h2>
-      </div>
-      <form method="GET" id="tcknForm" class="form stack">
-        <div class="field">
-          <label for="id_tckn">T.C. Kimlik No</label>
-          <input type="text" id="id_tckn" name="tckn" placeholder="11 haneli T.C. Kimlik No giriniz" required>
-        </div>
-        <div class="buttons-row center">
-          <button type="submit" class="btn btn-wide">🔍 Sorgula</button>
-        </div>
-      </form>
-      <div id="result" class="result-panel" style="display:none;"></div>
-      <div class="card-footer">
-        <a href="{% url 'patient-create' %}" class="btn-ghost">🧑‍⚕️ Yeni Hasta Kaydı</a>
+<div class="form-page">
+  <div class="card form-card">
+    <h1 class="page-title">🔎 T.C. ile Hasta Sorgula</h1>
+    <p class="page-subtitle">Lütfen T.C. Kimlik Numarasını giriniz.</p>
+
+    <form method="GET" id="tcknForm" class="form stack" novalidate>
+      <div class="field">
+        <label for="id_tckn">T.C. Kimlik No</label>
+        <input type="text" id="id_tckn" name="tckn" maxlength="11" placeholder="11 haneli T.C. Kimlik No giriniz">
       </div>
 
-    </div>
-  </div>
+      <div class="buttons-row center">
+        <button type="submit" class="btn btn-wide">Sorgula</button>
+      </div>
+    </form>
 
+    <div id="result" class="result-panel" style="display:none;"></div>
+  </div>
 </div>
+
 <script>
-  (function(){
-    const form   = document.getElementById('tcknForm');
-    const input  = document.getElementById('id_tckn');
-    const panel  = document.getElementById('result');
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("tcknForm");
+  const input = document.getElementById("id_tckn");
+  const result = document.getElementById("result");
 
-    function show(msgHtml){
-      panel.style.display = 'block';
-      panel.innerHTML = msgHtml;
+  function showTooltip(message) {
+    hideTooltip();
+    input.classList.add("input-error");
+
+    const tip = document.createElement("div");
+    tip.className = "error-tooltip";
+    tip.innerText = message;
+    input.parentNode.appendChild(tip);
+  }
+
+  function hideTooltip() {
+    input.classList.remove("input-error");
+    const tip = input.parentNode.querySelector(".error-tooltip");
+    if (tip) tip.remove();
+  }
+
+  function showResult(html) {
+    result.style.display = "block";
+    result.innerHTML = html;
+  }
+
+  input.addEventListener("input", () => {
+    input.value = input.value.replace(/\D/g, "");
+    hideTooltip();
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideTooltip();
+    result.style.display = "none";
+
+    const tckn = input.value.trim();
+    if (!/^[1-9][0-9]{10}$/.test(tckn)) {
+      showTooltip("Geçerli bir T.C. Kimlik No giriniz.");
+      return;
     }
-    function clearPanel(){
-      panel.style.display = 'none';
-      panel.innerHTML = '';
-    }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      clearPanel();
-
-      const nid = (input.value || '').trim();
-      if (!/^\d{11}$/.test(nid)) {
-        show('<div class="banner warn">⚠️ Lütfen 11 haneli bir T.C. Kimlik No giriniz.</div>');
+    try {
+      const res = await fetch(`/api/patients/search/?national_id=${tckn}`);
+      if (res.status === 404) {
+        showResult(`<div class="banner warning">❌ Hasta bulunamadı.</div>`);
         return;
       }
+      const patient = await res.json();
 
-      try {
-        const res = await fetch(`/api/patients/search/?national_id=${encodeURIComponent(nid)}`);
-        if (res.status === 404) {
-          show('<div class="banner warn">❌ Hasta bulunamadı.</div>');
-          return;
-        }
+      const regRes = await fetch(`/api/registrations/?national_id=${tckn}`);
+      const records = regRes.ok ? await regRes.json() : [];
 
-        const patient = await res.json();
-        const regRes = await fetch(`/api/registrations/?national_id=${encodeURIComponent(nid)}`);
-        const regs = regRes.ok ? await regRes.json() : [];
+      const listItems = records.length
+        ? records.map(r => `
+            <li>
+              <strong>${r.doctor_name}</strong>
+              <small>${r.created_at?.slice(0,10) || ''}</small>
+            </li>
+          `).join("")
+        : "<li>Kayıt bulunamadı.</li>";
 
-        const rows = Array.isArray(regs) && regs.length
-          ? regs.map(r => `
-              <li>
-                <div>
-                  <strong>${r.doctor_name}</strong>
-                  <div class="meta">${r.status}</div>
-                </div>
-                <span class="tag">${(r.created_at || '').slice(0,10)}</span>
-              </li>
-            `).join('')
-          : '<li>Kayıt bulunamadı.</li>';
+      showResult(`
+        <div class="banner info">
+          ✅ <strong>${patient.first_name} ${patient.last_name}</strong><br>
+          <span class="muted">T.C: ${patient.national_id}</span>
+        </div>
+        <ul class="list">${listItems}</ul>
+      `);
 
-        show(`
-          <div class="banner">
-            <strong>Hasta:</strong> ${patient.first_name} ${patient.last_name}
-            &nbsp;—&nbsp;<span class="muted">T.C.: ${patient.national_id}</span>
-          </div>
-          <ul class="list">${rows}</ul>
-        `);
-      } catch (err) {
-        show('<div class="banner warn">🚨 Beklenmeyen bir hata oluştu.</div>');
-        console.error(err);
-      }
-    });
-  })();
+    } catch (err) {
+      showResult(`<div class="banner error">🚨 Sistem Hatası. Tekrar deneyiniz.</div>`);
+    }
+  });
+});
 </script>
 {% endblock %}

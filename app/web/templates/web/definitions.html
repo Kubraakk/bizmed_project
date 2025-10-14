@@ -1,78 +1,78 @@
+{% extends 'web/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>Tanımlar | Bizmed</title>
-  <link rel="stylesheet" href="{% static 'web/style.css' %}?v=3">
-</head>
-<body>
-  <div class="container">
-    <a href="{% url 'home' %}" class="back-link">← Ana Sayfa</a>
-    <h1>⚙️ Tanımlar</h1>
-    <p class="subtext">Bölümleri ve doktorları yönetin</p>
 
-    <div class="grid">
-      <div class="card">
-        <h2>🏥 Bölümler</h2>
-        <form method="post">
-          {% csrf_token %}
-          <input type="text" name="department_name" placeholder="Yeni bölüm adı" required>
-          <button type="submit" name="add_department">Ekle</button>
-        </form>
+{% block title %}Tanımlar | BizMed{% endblock %}
 
-        <ul>
-          {% for dept in departments %}
-            <li>
-              <span>{{ dept.name }}</span>
-              <div class="actions">
-                <form method="post" style="display:inline;">
-                  {% csrf_token %}
-                  <input type="hidden" name="delete_department_id" value="{{ dept.id }}">
-                  <button type="submit" class="delete-btn">🗑️</button>
-                </form>
-              </div>
-            </li>
-          {% empty %}
-            <li>Henüz bölüm yok.</li>
-          {% endfor %}
-        </ul>
-      </div>
-      <div class="card">
-        <h2>👨‍⚕️ Doktorlar</h2>
-        <form method="post">
-          {% csrf_token %}
-          <input type="text" name="first_name" placeholder="Ad" required>
-          <input type="text" name="last_name" placeholder="Soyad" required>
+{% block content %}
+<div class="page-wrapper">
+  <h1 class="page-title">⚙️ Tanımlar</h1>
+  <p class="page-desc">Bölümleri ve doktorları yönetin</p>
+
+  <div class="grid">
+    <!-- ✅ Bölümler -->
+    <div class="card">
+      <h2>🏥 Bölümler</h2>
+      <form method="post">
+        {% csrf_token %}
+        <div class="field">
+          <input type="text" name="department_name" placeholder="Yeni bölüm adı girin..." required>
+        </div>
+        <button type="submit" name="add_department" class="btn btn-wide">Ekle</button>
+      </form>
+
+      <ul>
+        {% for dept in departments %}
+          <li class="list-item">
+            <span>🏥 {{ dept.name }}</span>
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="delete_department_id" value="{{ dept.id }}">
+              <button type="submit" class="delete-btn">Sil</button>
+            </form>
+          </li>
+        {% empty %}
+          <p class="empty-text">Henüz bölüm eklenmemiş.</p>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- ✅ Doktorlar -->
+    <div class="card">
+      <h2>👨‍⚕️ Doktorlar</h2>
+      <form method="post">
+        {% csrf_token %}
+        <div class="field">
+          <input type="text" name="first_name" placeholder="Doktor adı" required>
+        </div>
+        <div class="field">
+          <input type="text" name="last_name" placeholder="Doktor soyadı" required>
+        </div>
+        <div class="field">
           <select name="department_id" required>
             <option value="">Bölüm seçin</option>
             {% for dept in departments %}
               <option value="{{ dept.id }}">{{ dept.name }}</option>
             {% endfor %}
           </select>
-          <button type="submit" name="add_doctor">Ekle</button>
-        </form>
+        </div>
+        <button type="submit" name="add_doctor" class="btn btn-wide">Ekle</button>
+      </form>
 
-        <ul>
-          {% for doctor in doctors %}
-            <li>
-              <span>Dr. {{ doctor.first_name }} {{ doctor.last_name }}
-                <small>({{ doctor.department.name }})</small>
-              </span>
-              <div class="actions">
-                <form method="post" style="display:inline;">
-                  {% csrf_token %}
-                  <input type="hidden" name="delete_doctor_id" value="{{ doctor.id }}">
-                  <button type="submit" class="delete-btn">🗑️</button>
-                </form>
-              </div>
-            </li>
-          {% empty %}
-            <li>Henüz doktor yok.</li>
-          {% endfor %}
-        </ul>
-      </div>
+      <ul>
+        {% for doctor in doctors %}
+          <li class="list-item">
+            <span>👨‍⚕️ Dr. {{ doctor.first_name }} {{ doctor.last_name }} <small>({{ doctor.department.name }})</small></span>
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="delete_doctor_id" value="{{ doctor.id }}">
+              <button type="submit" class="delete-btn">Sil</button>
+            </form>
+          </li>
+        {% empty %}
+          <p class="empty-text">Henüz doktor eklenmemiş.</p>
+        {% endfor %}
+      </ul>
     </div>
   </div>
-</body>
-</html>
+</div>
+{% endblock %}

@@ -1,88 +1,74 @@
+{% extends "web/base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="{% static 'web/style.css' %}">
-  <title>Yeni Kayıt Oluştur</title>
-</head>
-<body class="page">
 
-  <div class="split">
-    <div class="split-left">
-      <div class="side">
-        <img src="{% static 'web/bizmed-logo.png' %}" alt="Bizmed" class="side-logo xl">
-        <p class="slogan">“Sağlıklı Bilgi”</p>
-      </div>
+{% block title %}Yeni Kayıt Oluştur{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="card form-card">
+    <div class="card-top">
+      <h1 class="brand-title">Yeni Kayıt Oluştur</h1>
     </div>
 
-    <div class="split-right">
-      <div class="card shift-right">
-        <div class="card-top">
-          <a href="{% url 'home' %}" class="btn-ghost top-left small">🏠 Ana Sayfa</a>
-          <h1 class="brand-title">Yeni Kayıt Oluştur</h1>
+    {% if patient %}
+      <div class="banner">
+        <strong>Hasta:</strong> {{ patient.first_name }} {{ patient.last_name }}
+        — <span class="muted">T.C: {{ patient.national_id }}</span>
+      </div>
+    {% endif %}
+
+    <form method="post" id="regForm" class="form stack">
+      {% csrf_token %}
+      <div class="grid">
+        <div class="field">
+          <label for="id_department">Bölüm</label>
+          {{ form.department }}
         </div>
 
-        {% if patient %}
-          <div class="banner">
-            <strong>Hasta:</strong> {{ patient.first_name }} {{ patient.last_name }}
-            — <span class="muted">T.C: {{ patient.national_id }}</span>
-          </div>
-        {% endif %}
+        {{ form.doctor.as_hidden }}
 
-        <form method="post" id="regForm" class="form stack">
-          {% csrf_token %}
-
-          <div class="grid">
-            <div class="field">
-              <label for="id_department">Bölüm</label>
-              {{ form.department }}
-            </div>
-            {{ form.doctor.as_hidden }}
-
-            <div class="field">
-            <label>Doktor</label>
-
-            {% if doctors %}
+        <div class="field">
+          <label>Doktor</label>
+          {% if doctors %}
             <div class="doc-scroll">
-                <ul class="doc-grid" id="doctorGrid">
+              <ul class="doc-grid" id="doctorGrid">
                 {% for d in doctors %}
                 <li>
-                    <button
+                  <button
                     type="button"
                     class="doc-card{% if selected_doctor_id and selected_doctor_id|stringformat:'s' == d.id|stringformat:'s' %} selected{% endif %}"
                     data-id="{{ d.id }}"
                     aria-pressed="{% if selected_doctor_id and selected_doctor_id|stringformat:'s' == d.id|stringformat:'s' %}true{% else %}false{% endif %}">
                     <span class="avatar">{{ d.first_name|first }}{{ d.last_name|first }}</span>
                     <span class="info">
-                        <span class="name">{{ d.first_name }} {{ d.last_name }}</span>
-                        <span class="meta">{{ d.department.name }}</span>
+                      <span class="name">{{ d.first_name }} {{ d.last_name }}</span>
+                      <span class="meta">{{ d.department.name }}</span>
                     </span>
-                    <span class="tick" aria-hidden="true">✔</span>
-                    </button>
+                    <span class="tick">✔</span>
+                  </button>
                 </li>
                 {% endfor %}
-                </ul>
+              </ul>
             </div>
-            {% else %}
-                <p class="muted">Bu bölüm için doktor bulunamadı.</p>
-            {% endif %}
-            </div>
-            <div class="field">
-              <label for="id_notes">Not</label>
-              {{ form.notes }}
-            </div>
-          </div>
+          {% else %}
+            <p class="muted">Bu bölüm için doktor bulunamadı.</p>
+          {% endif %}
+        </div>
 
-          <div class="buttons-row center">
-            <button type="submit" class="btn btn-wide">Kaydı Oluştur</button>
-          </div>
-        </form>
+        <div class="field">
+          <label for="id_notes">Not</label>
+          {{ form.notes }}
+        </div>
       </div>
-    </div>
-  </div>
 
-  <script>
+      <div class="buttons-row center">
+        <button type="submit" class="btn btn-wide">Kaydı Oluştur</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
   document.addEventListener("DOMContentLoaded", () => {
     const dep = document.getElementById("id_department");
     const hiddenDoctor = document.getElementById("id_doctor");
@@ -111,3 +97,4 @@
 
 </body>
 </html>
+{% endblock %}

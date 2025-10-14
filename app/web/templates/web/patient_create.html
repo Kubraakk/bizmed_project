@@ -1,89 +1,52 @@
+{% extends "web/base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="{% static 'web/style.css' %}">
-  <title>Yeni Hasta Kaydı</title>
-</head>
-<body class="page">
 
-  <div class="split">
-    <div class="split-left">
-      <div class="side">
-        <img src="{% static 'web/bizmed-logo.png' %}" alt="Bizmed" class="side-logo xl">
-      </div>
-    </div>
-    <div class="split-right">
-      <div class="card shift-right">
-        <div class="card-top">
-          <a href="{% url 'home' %}" class="btn-ghost top-left small">🏠 Ana Sayfa</a>
-          <h1 class="brand-title">Yeni Hasta Kaydı</h1>
-        </div>
+{% block title %}Hasta Kayıt Formu{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="card form-card">
+        <h1 class="page-title">🧑‍⚕️ Hasta Kayıt Formu</h1>
+        <p class="page-subtitle">Lütfen hasta bilgilerini eksiksiz doldurunuz.</p>
 
         {% if messages %}
-          <div class="messages">
+        <div class="messages">
             {% for message in messages %}
-              <div class="banner {{ message.tags }}">{{ message }}</div>
+            <div class="banner {{ message.tags }}">{{ message }}</div>
             {% endfor %}
-          </div>
+        </div>
         {% endif %}
 
-        <form method="post" id="patientForm" class="form stack" novalidate>
-          {% csrf_token %}
-          <div class="grid">
-
+        <form method="post" id="patientForm" class="form" novalidate>
+            {% csrf_token %}
             <div class="field">
-              <label for="id_national_id">T.C. Kimlik No</label>
-              {{ form.national_id }}
-              {% for error in form.national_id.errors %}
-                <p class="error-text">{{ error }}</p>
-              {% endfor %}
+                <label for="id_national_id">T.C. Kimlik No</label>
+                {{ form.national_id }}
+            </div>
+            <div class="field">
+                <label for="id_first_name">Ad</label>
+                {{ form.first_name }}
+            </div>
+            <div class="field">
+                <label for="id_last_name">Soyad</label>
+                {{ form.last_name }}
+            </div>
+            <div class="field">
+                <label for="id_phone">Telefon</label>
+                {{ form.phone }}
+            </div>
+            <div class="field">
+                <label for="id_address">Adres</label>
+                {{ form.address }}
             </div>
 
-            <div class="field">
-              <label for="id_first_name">Ad</label>
-              {{ form.first_name }}
-              {% for error in form.first_name.errors %}
-                <p class="error-text">{{ error }}</p>
-              {% endfor %}
+            <div class="buttons-row center">
+                <button type="submit" class="btn btn-wide">Kaydet ve Kayıt Aç</button>
             </div>
-
-            <div class="field">
-              <label for="id_last_name">Soyad</label>
-              {{ form.last_name }}
-              {% for error in form.last_name.errors %}
-                <p class="error-text">{{ error }}</p>
-              {% endfor %}
-            </div>
-
-            <div class="field">
-              <label for="id_phone">Telefon</label>
-              {{ form.phone }}
-              {% for error in form.phone.errors %}
-                <p class="error-text">{{ error }}</p>
-              {% endfor %}
-            </div>
-
-            <div class="field">
-              <label for="id_address">Adres</label>
-              {{ form.address }}
-            </div>
-
-          </div>
-
-          <div class="buttons-row center">
-            <button type="submit" class="btn btn-wide">Kaydet ve Kayıt Aç</button>
-          </div>
         </form>
-
-        <div class="card-footer">
-          <a href="{% url 'tckn-search' %}" class="btn-ghost">🔍 T.C. ile Hasta Sorgula</a>
-        </div>
-      </div>
     </div>
-  </div>
-  <script>
+</div>
+<script>
     document.addEventListener("DOMContentLoaded", () => {
       const form = document.getElementById("patientForm");
 
@@ -194,6 +157,8 @@
         }
       });
     });
-    </script>
-    </body>
-    </html>
+  </script>
+</body>
+</html>
+{% endblock %}
+

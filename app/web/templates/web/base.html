@@ -3,12 +3,35 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %}Bizmed | Hasta Kayıt Sistemi{% endblock %}</title>
+  <title>{% block title %}BizMed{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'web/style.css' %}?v=4">
-  {% block extra_head %}{% endblock %}
 </head>
-<body class="page">
-  {% block content %}{% endblock %}
-  {% block extra_js %}{% endblock %}
+<body>
+
+  <!-- ✅ Sabit Header -->
+  <header class="navbar">
+    <div class="nav-left">
+      <a href="{% url 'home' %}" class="nav-logo">
+        <img src="{% static 'web/bizmed-logo.png' %}" alt="BizMed">
+      </a>
+      <nav class="nav-links">
+        <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Ana Sayfa</a>
+        <a href="{% url 'patient-create' %}" class="{% if 'patient' in request.path %}active{% endif %}">Yeni Hasta Kaydı</a>
+        <a href="{% url 'definitions' %}" class="{% if 'definitions' in request.path %}active{% endif %}">Tanımlar</a>
+        <a href="{% url 'tckn-search' %}" class="{% if 'tckn' in request.path %}active{% endif %}">T.C. ile Hasta Sorgu</a>
+      </nav>
+    </div>
+
+    <div class="nav-right">
+      <a href="" class="btn-logout">Çıkış</a>
+    </div>
+  </header>
+
+  <!-- ✅ Sayfa İçeriği -->
+  <main class="page-content">
+    {% block content %}
+    {% endblock %}
+  </main>
+
 </body>
 </html>
