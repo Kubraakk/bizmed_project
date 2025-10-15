@@ -80,11 +80,10 @@ Projede API geliştirme ve test süreçleri için aşağıdaki araçlar kullanı
 Docker ile birlikte aşağıdaki environment ayarları kullanılmaktadır: 
 
 ```bash
-POSTGRES_DB=hasta_kayit
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-DB_HOST=db
-DB_PORT=5432
+DB_HOST = db
+DB_NAME = bizmed_db
+DB_USER = user
+DB_PASS = pass
 ```
 
 ## 📸 Ekran Görselleri  
