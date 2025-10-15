@@ -31,8 +31,7 @@ Proje, sağlık kurumlarındaki hasta kabul süreçlerini yönetmek için geliş
 --- 
 
 ## 🧩 Veri Tabanı Diyagramı (ER Diagram) 
-
-<img width="680" height="524" alt="Ekran Resmi 2025-10-15 12 27 36" src="https://github.com/user-attachments/assets/a7ccec7d-7334-4632-8621-6bfd29d5bec3" /> 
+<img width="750" height="555" alt="Ekran Resmi 2025-10-15 12 57 34" src="https://github.com/user-attachments/assets/a2b52dde-1d0b-45d9-ae9c-f891fb93c0b2" />
 
 ## 📦 Kurulum (Docker ile Çalıştırma) 
 Projeyi docker-compose kullanarak kolayca ayağa kaldırabilirsiniz.
